@@ -1,0 +1,28 @@
+type User {
+  id: Float!
+  email: String!
+  name: String
+  posts: [Message!]!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String
+}
+
+input UpdateUserInput {
+  id: Float!
+  email: String!
+  name: String
+}
+
+type Query {
+  user(id: Float!): User
+  users: [User!]!
+}
+
+type Mutation {
+  createOrLoginUser(input: CreateUserInput): User!
+  updateUser(input: UpdateUserInput): User
+  removeUser(id: Float!): User
+}

@@ -1,0 +1,28 @@
+type Message {
+  id: ID!
+  authorId: Float!
+  content: String
+  user: User!
+}
+
+input CreateMessageInput {
+  content: String!
+  authorId: Float!
+}
+
+input UpdateMessageInput {
+  id:ID!
+  content: String!
+}
+
+type Query {
+  messages: [Message!]!
+  message(user_id: ID!): [Message!]!
+  user(id: Float!): User!
+}
+
+type Mutation {
+  createMessage(input: CreateMessageInput): Message!
+  updateMessage(input: UpdateMessageInput): Message
+  removeMessage(id: ID!): Message
+}
