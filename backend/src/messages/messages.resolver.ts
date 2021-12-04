@@ -6,13 +6,18 @@ import {
   Int,
   ResolveField,
   Parent,
+  Subscription,
 } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 import { MessagesService } from './messages.service';
 import { Message } from './entities/message.entity';
 import { CreateMessageInput } from './dto/create-message.input';
 import { UpdateMessageInput } from './dto/update-message.input';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { DeleteMessageInput } from './dto/delete-message.input';
+
+export const pubSub = new PubSub();
 
 @Resolver(() => Message)
 export class MessagesResolver {
@@ -22,35 +27,56 @@ export class MessagesResolver {
   ) {}
 
   @Mutation(() => Message)
-  async createMessage(@Args('input') createMessageInput: CreateMessageInput) {
-    return this.messagesService.create(createMessageInput);
+  async createMessage(
+    @Args('input') createMessageInput: CreateMessageInput,
+  ): Promise<Message> {
+    const message = await this.messagesService.create(createMessageInput);
+
+    pubSub.publish('messageAdded', { messageAdded: message });
+
+    return message;
   }
 
   @Query(() => [Message], { name: 'messages' })
-  async getMessages() {
+  async getMessages(): Promise<Message[]> {
     return this.messagesService.findAll();
   }
 
   @Query(() => Message, { name: 'message' })
   async getMessagesFromUser(
     @Args('user_id', { type: () => Int }) user_id: number,
-  ) {
+  ): Promise<Message[]> {
     return this.messagesService.findMessagesFromUser(user_id);
   }
 
   @Mutation(() => Message)
   async updateMessage(
     @Args('updateMessageInput') updateMessageInput: UpdateMessageInput,
-  ) {
+  ): Promise<Message> {
     return this.messagesService.update(
       updateMessageInput.id,
       updateMessageInput,
     );
   }
 
-  @Mutation(() => Message)
-  async removeMessage(@Args('id', { type: () => Int }) id: number) {
-    return this.messagesService.remove(id);
+  @Mutation(() => Message, { nullable: true })
+  async removeMessage(
+    @Args('data', { type: () => Int }) data: DeleteMessageInput,
+  ): Promise<Message> {
+    const message = await this.messagesService.findMessageFromUser(data.userId);
+
+    const messageCopy = message;
+
+    if (!message) return null;
+
+    await this.messagesService.remove(data.id);
+
+    return messageCopy;
+  }
+
+  @Subscription(() => Message)
+  messageAdded() {
+    return pubSub.asyncIterator('messageAdded');
   }
 
   @ResolveField(() => User, { name: 'user' })

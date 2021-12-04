@@ -27,6 +27,12 @@ export class MessagesService {
     });
   }
 
+  async findMessageFromUser(id: number): Promise<Message> {
+    return this.prisma.message.findFirst({
+      where: { authorId: Number(id) },
+    });
+  }
+
   async update(
     id: number,
     updateMessageInput: UpdateMessageInput,
@@ -37,7 +43,7 @@ export class MessagesService {
     });
   }
 
-  remove(id: number): Promise<Message> {
+  async remove(id: number): Promise<Message> {
     return this.prisma.message.delete({
       where: { id },
     });

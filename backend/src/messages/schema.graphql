@@ -15,14 +15,23 @@ input UpdateMessageInput {
   content: String!
 }
 
+input DeleteMessageInput {
+  id: Float!
+  userId: Float!
+}
+
 type Query {
   messages: [Message!]!
   message(user_id: ID!): [Message!]!
   user(id: Float!): User!
 }
 
+type Subscription {
+  messageAdded: Message!
+}
+
 type Mutation {
   createMessage(input: CreateMessageInput): Message!
   updateMessage(input: UpdateMessageInput): Message
-  removeMessage(id: ID!): Message
+  removeMessage(data: DeleteMessageInput): Message
 }

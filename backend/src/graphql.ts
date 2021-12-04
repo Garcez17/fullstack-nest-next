@@ -17,6 +17,11 @@ export class UpdateMessageInput {
     content: string;
 }
 
+export class DeleteMessageInput {
+    id: number;
+    userId: number;
+}
+
 export class CreateUserInput {
     email: string;
     name?: Nullable<string>;
@@ -43,8 +48,6 @@ export abstract class IQuery {
     abstract user(id: number): User | Promise<User>;
 
     abstract users(): User[] | Promise<User[]>;
-
-    abstract userMessages(id: number): Nullable<Message>[] | Promise<Nullable<Message>[]>;
 }
 
 export abstract class IMutation {
@@ -52,9 +55,9 @@ export abstract class IMutation {
 
     abstract updateMessage(input?: Nullable<UpdateMessageInput>): Nullable<Message> | Promise<Nullable<Message>>;
 
-    abstract removeMessage(id: string): Nullable<Message> | Promise<Nullable<Message>>;
+    abstract removeMessage(data?: Nullable<DeleteMessageInput>): Nullable<Message> | Promise<Nullable<Message>>;
 
-    abstract createUser(input?: Nullable<CreateUserInput>): User | Promise<User>;
+    abstract createOrLoginUser(input?: Nullable<CreateUserInput>): User | Promise<User>;
 
     abstract updateUser(input?: Nullable<UpdateUserInput>): Nullable<User> | Promise<Nullable<User>>;
 

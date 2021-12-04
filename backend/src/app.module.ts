@@ -9,6 +9,7 @@ import { MessagesModule } from './messages/messages.module';
     MessagesModule,
     GraphQLModule.forRoot({
       typePaths: ['./**/*.graphql'],
+      installSubscriptionHandlers: true,
     }),
   ],
   controllers: [],
