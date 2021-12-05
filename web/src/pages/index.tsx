@@ -2,7 +2,6 @@ import { useMutation } from "@apollo/client";
 import gql from "graphql-tag";
 import { useRouter } from 'next/router'
 import { useEffect, useState } from "react";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 
 export const CREATE_OR_LOGIN_USER = gql`
   mutation($email: String!, $name: String) {

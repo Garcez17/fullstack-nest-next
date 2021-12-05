@@ -1,13 +1,26 @@
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { Message } from "../components/Message";
 
-
+export const GET_MESSAGES = gql`
+  query {
+    getMessages {
+      id
+      content
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
 
 export const GET_MESSAGES_FROM_USER = gql`
-  query {
-    messages {
+  query($user_id: String!) {
+    getMessagesFromUser(user_id: $user_id) {
       id
       content
       user {
@@ -21,14 +34,13 @@ export const GET_MESSAGES_FROM_USER = gql`
 
 export default function Messages() {
   const router = useRouter();
+  const [typeMessages, setTypeMessages] = useState<'general' | 'my-messages'>('general');
 
   const { loading, data } = useQuery(
-    GET_MESSAGES_FROM_USER, {
-      variables: { user_id: router.query.id }
+    typeMessages === 'general' ? GET_MESSAGES : GET_MESSAGES_FROM_USER, {
+      variables: { user_id: '3' }
     }
   );
-  
-  if (loading) return <p>Loading ...</p>;
 
   return (
     <div className="container mx-auto h-screen flex flex-col">
@@ -45,15 +57,32 @@ export default function Messages() {
         <div className="flex flex-col w-2/4">
           <ul className="flex mx-auto">
             <li>
-              <button className="h-12 pr-4 border-b-2 border-purple-500 hover:opacity-90">Mensagens gerais</button>
+              <button 
+                className={`h-12 pr-4 border-b-2 ${typeMessages === 'general' ? 'border-purple-500 hover:opacity-90' : 'border-gray-500 opacity-50 hover:opacity-40'} `}
+                onClick={() => setTypeMessages('general')}
+              >
+                Mensagens gerais
+              </button>
             </li>
             <li>
-              <button className="h-12 pl-4 border-b-2 border-gray-500 opacity-50 hover:opacity-40">Minhas mensagens</button>
+              <button 
+                className={`h-12 pl-4 border-b-2 ${typeMessages === 'my-messages' ? 'border-purple-500 hover:opacity-90' : 'border-gray-500 opacity-50 hover:opacity-40'} `}
+                onClick={() => setTypeMessages('my-messages')}
+              >
+                Minhas mensagens
+              </button>
             </li>
           </ul>
         
           <article className="flex flex-col w-full mt-4 divide-y divide-gray-700">
-            {data?.messages.map(item => <Message key={item.id} message={item} />)}
+            {loading ? (
+              <>
+                <Message />
+                <Message />
+                <Message />
+                <Message />
+              </>
+            ) : data[typeMessages === 'general' ? 'getMessages' : 'getMessagesFromUser']?.map(item => <Message key={item.id} message={item} />)}
           </article>
         </div>
       </section>
