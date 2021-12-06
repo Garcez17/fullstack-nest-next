@@ -1,7 +1,9 @@
 import { useMutation } from "@apollo/client";
 import gql from "graphql-tag";
 import { useRouter } from 'next/router'
+import { setCookie } from "nookies";
 import { useEffect, useState } from "react";
+import { withSSRGuest } from "../utils/withSSRGuest";
 
 export const CREATE_OR_LOGIN_USER = gql`
   mutation($email: String!, $name: String) {
@@ -22,8 +24,11 @@ export default function Home() {
 
   useEffect(() => {
     if (data) {
-      window.localStorage.setItem('user_id', JSON.stringify(data?.createOrLoginUser.id));
-      
+      setCookie(undefined, 'user_id', String(data?.createOrLoginUser.id), {
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        path: '/',
+      });
+
       router.push('/messages');
     }
   }, [data, router]);
@@ -77,3 +82,9 @@ export default function Home() {
     </div>
   )
 }
+
+export const getServerSideProps = withSSRGuest(async () => {
+  return {
+    props: {}
+  }
+})
