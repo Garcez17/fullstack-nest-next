@@ -37,16 +37,16 @@ export class MessagesResolver {
     return message;
   }
 
-  @Query(() => [Message], { name: 'messages' })
+  @Query(() => [Message], { name: 'getMessages' })
   async getMessages(): Promise<Message[]> {
     return this.messagesService.findAll();
   }
 
-  @Query(() => Message, { name: 'message' })
+  @Query(() => Message, { name: 'getMessagesFromUser' })
   async getMessagesFromUser(
-    @Args('user_id', { type: () => Int }) user_id: number,
+    @Args('user_id', { type: () => Int }) user_id: string,
   ): Promise<Message[]> {
-    return this.messagesService.findMessagesFromUser(user_id);
+    return this.messagesService.findMessagesFromUser(Number(user_id));
   }
 
   @Mutation(() => Message)

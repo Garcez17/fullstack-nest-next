@@ -10,4 +10,7 @@ export class Message {
 
   @Field(() => Int)
   authorId: number;
+
+  @Field()
+  createdAt: Date;
 }

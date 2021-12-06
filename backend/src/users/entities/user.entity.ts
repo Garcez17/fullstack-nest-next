@@ -10,4 +10,7 @@ export class User {
 
   @Field({ nullable: true })
   name?: string;
+
+  @Field()
+  createdAt: Date;
 }

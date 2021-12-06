@@ -41,13 +41,17 @@ export class Message {
 }
 
 export abstract class IQuery {
-    abstract messages(): Message[] | Promise<Message[]>;
+    abstract getMessages(): Message[] | Promise<Message[]>;
 
-    abstract message(user_id: string): Message[] | Promise<Message[]>;
+    abstract getMessagesFromUser(user_id: string): Message[] | Promise<Message[]>;
 
     abstract user(id: number): User | Promise<User>;
 
     abstract users(): User[] | Promise<User[]>;
+}
+
+export abstract class ISubscription {
+    abstract messageAdded(): Message | Promise<Message>;
 }
 
 export abstract class IMutation {

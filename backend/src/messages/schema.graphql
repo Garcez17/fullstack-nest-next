@@ -21,8 +21,8 @@ input DeleteMessageInput {
 }
 
 type Query {
-  messages: [Message!]!
-  message(user_id: ID!): [Message!]!
+  getMessages: [Message!]!
+  getMessagesFromUser(user_id: String!): [Message!]!
   user(id: Float!): User!
 }
 

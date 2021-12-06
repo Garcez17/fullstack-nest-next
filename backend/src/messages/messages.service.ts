@@ -18,18 +18,28 @@ export class MessagesService {
   }
 
   async findAll(): Promise<Message[]> {
-    return this.prisma.message.findMany();
+    return this.prisma.message.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   async findMessagesFromUser(id: number): Promise<Message[]> {
     return this.prisma.message.findMany({
       where: { authorId: Number(id) },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
   async findMessageFromUser(id: number): Promise<Message> {
     return this.prisma.message.findFirst({
       where: { authorId: Number(id) },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -39,7 +49,9 @@ export class MessagesService {
   ): Promise<Message> {
     return this.prisma.message.update({
       where: { id },
-      data: updateMessageInput,
+      data: {
+        content: updateMessageInput.content,
+      },
     });
   }
 
