@@ -1,81 +1,30 @@
 import { useMutation, useQuery, useSubscription } from "@apollo/client";
-import gql from "graphql-tag";
+import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { parseCookies } from "nookies";
-import { useEffect, useState } from "react";
+
+import { CREATE_MESSAGE, GET_MESSAGES, GET_MESSAGES_FROM_USER, MESSAGES_SUBSCRIPTION } from "../utils/graphqlGql";
 import { Message } from "../components/Message";
 import { withSSRAuth } from "../utils/withSSRAuth";
-
-export const GET_MESSAGES = gql`
-  query {
-    getMessages {
-      id
-      content
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
-
-export const GET_MESSAGES_FROM_USER = gql`
-  query($user_id: String!) {
-    getMessagesFromUser(user_id: $user_id) {
-      id
-      content
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
-
-export const CREATE_MESSAGE = gql`
-  mutation($content: String!, $authorId: Float!) {
-    createMessage(input: { content: $content, authorId: $authorId }) {
-      id
-      content
-    }
-  }
-`;
-
-const MESSAGES_SUBSCRIPTION = gql`
-  subscription MessageAdded {
-      messageAdded {
-      id
-      authorId
-      content
-      user {
-        id
-        email
-        name
-      }
-    }
-  }
-`;
 
 export default function Messages() {
   const cookies = parseCookies();
 
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
   const [typeMessages, setTypeMessages] = useState<'general' | 'my-messages'>('general');
 
-  const { loading, data } = useQuery(
+  const { loading, data, refetch } = useQuery(
     typeMessages === 'general' ? GET_MESSAGES : GET_MESSAGES_FROM_USER, {
-      variables: { user_id: cookies['user_id'] }
-    }
+      variables: { user_id: cookies['user_id'] },
+    },
   );
-
-  const [createMessage] = useMutation(CREATE_MESSAGE);
 
   const { data: subsData } = useSubscription(
     MESSAGES_SUBSCRIPTION
   );
+
+  const [createMessage] = useMutation(CREATE_MESSAGE);
 
   useEffect(() => {
     if (data) {
@@ -85,6 +34,10 @@ export default function Messages() {
 
   useEffect(() => {
     if (subsData?.messageAdded) {
+      const findMessageFromArr = messages.find(msg => msg.id === subsData?.messageAdded.id);
+  
+      if (findMessageFromArr) return;
+
       const updatedMessages = [subsData?.messageAdded, ...messages];
 
       if (typeMessages === 'my-messages') {
@@ -93,8 +46,10 @@ export default function Messages() {
       } else {
         setMessages(updatedMessages);
       }
+
+      refetch();
     }
-  }, [subsData?.messageAdded.id]);
+  }, [subsData?.messageAdded.id, typeMessages]);
 
 
   async function handleSubmit(e) {
