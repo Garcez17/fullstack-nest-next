@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import {
   Resolver,
   Query,
@@ -9,21 +10,27 @@ import {
   Subscription,
 } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { MessagesService } from './messages.service';
+
 import { Message } from './entities/message.entity';
+import { User } from 'src/users/entities/user.entity';
+
 import { CreateMessageInput } from './dto/create-message.input';
 import { UpdateMessageInput } from './dto/update-message.input';
-import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
 import { DeleteMessageInput } from './dto/delete-message.input';
+
+import { IMessagesService } from './IMessages.service';
+import { IUsersService } from 'src/users/IUsers.service';
 
 export const pubSub = new PubSub();
 
 @Resolver(() => Message)
 export class MessagesResolver {
   constructor(
-    private readonly messagesService: MessagesService,
-    private readonly usersService: UsersService,
+    @Inject('MessagesService')
+    private readonly messagesService: IMessagesService,
+
+    @Inject('UsersService')
+    private readonly usersService: IUsersService,
   ) {}
 
   @Mutation(() => Message)
@@ -37,12 +44,12 @@ export class MessagesResolver {
     return message;
   }
 
-  @Query(() => [Message], { name: 'getMessages' })
+  @Query(() => [Message])
   async getMessages(): Promise<Message[]> {
     return this.messagesService.findAll();
   }
 
-  @Query(() => Message, { name: 'getMessagesFromUser' })
+  @Query(() => Message)
   async getMessagesFromUser(
     @Args('user_id', { type: () => Int }) user_id: string,
   ): Promise<Message[]> {

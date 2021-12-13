@@ -3,9 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateMessageInput } from './dto/create-message.input';
 import { UpdateMessageInput } from './dto/update-message.input';
+import { IMessagesService } from './IMessages.service';
 
 @Injectable()
-export class MessagesService {
+export class MessagesService implements IMessagesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createMessageInput: CreateMessageInput): Promise<Message> {

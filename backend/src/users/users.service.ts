@@ -3,12 +3,13 @@ import { PrismaService } from 'src/prisma.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from '@prisma/client';
+import { IUsersService } from './IUsers.service';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements IUsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createUserInput: CreateUserInput) {
+  async create(createUserInput: CreateUserInput): Promise<User> {
     return this.prisma.user.create({
       data: createUserInput,
     });
@@ -37,7 +38,7 @@ export class UsersService {
     });
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<User> {
     return this.prisma.user.delete({
       where: { id },
     });

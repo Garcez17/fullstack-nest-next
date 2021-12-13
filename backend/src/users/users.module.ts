@@ -5,6 +5,17 @@ import { PrismaService } from '../prisma.service';
 import { MessagesService } from 'src/messages/messages.service';
 
 @Module({
-  providers: [UsersResolver, UsersService, PrismaService, MessagesService],
+  providers: [
+    UsersResolver,
+    PrismaService,
+    {
+      provide: 'UsersService',
+      useClass: UsersService,
+    },
+    {
+      provide: 'MessagesService',
+      useClass: MessagesService,
+    },
+  ],
 })
 export class UsersModule {}
